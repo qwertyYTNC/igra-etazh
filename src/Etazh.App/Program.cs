@@ -8,7 +8,13 @@ internal static class Program
     private static void Main()
     {
         ApplicationConfiguration.Initialize();
-        var world = new GameWorld(new Room(800, 600), new Player());
+        var room = new Room(800, 600);
+        var player = new Player
+        {
+            X = (room.Width - Player.Size) / 2,
+            Y = (room.Height - Player.Size) / 2
+        };
+        var world = new GameWorld(room, player);
         Application.Run(new GameForm(world));
     }
 }

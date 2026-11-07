@@ -42,4 +42,75 @@ public class GameWorldTests
         Assert.Single(world.Enemies);
         Assert.Single(world.Bullets);
     }
+
+    [Fact]
+    public void ШагВправо_СдвигаетИгрока()
+    {
+        var world = new GameWorld(new Room(800, 600), new Player { X = 100, Y = 120 });
+        world.SetHorizontalMove(1);
+
+        world.Step();
+
+        Assert.Equal(100 + Player.Speed, world.Player.X);
+        Assert.Equal(120, world.Player.Y);
+    }
+
+    [Fact]
+    public void ШагБезКоманды_НеМеняетКоординатыИгрока()
+    {
+        var world = new GameWorld(new Room(800, 600), new Player { X = 100, Y = 120 });
+
+        world.Step();
+
+        Assert.Equal(100, world.Player.X);
+        Assert.Equal(120, world.Player.Y);
+    }
+
+    [Fact]
+    public void ШагВПравуюСтену_ОстанавливаетИгрока()
+    {
+        var room = new Room(800, 600);
+        var maxX = room.Width - Player.Size;
+        var world = new GameWorld(room, new Player { X = maxX - 1, Y = 50 });
+        world.SetHorizontalMove(1);
+
+        world.Step();
+
+        Assert.Equal(maxX, world.Player.X);
+    }
+
+    [Fact]
+    public void ШагВЛевуюСтену_ОстанавливаетИгрока()
+    {
+        var world = new GameWorld(new Room(800, 600), new Player { X = 1, Y = 50 });
+        world.SetHorizontalMove(-1);
+
+        world.Step();
+
+        Assert.Equal(0, world.Player.X);
+    }
+
+    [Fact]
+    public void ШагВВерхнююСтену_ОстанавливаетИгрока()
+    {
+        var world = new GameWorld(new Room(800, 600), new Player { X = 50, Y = 1 });
+        world.SetVerticalMove(-1);
+
+        world.Step();
+
+        Assert.Equal(0, world.Player.Y);
+    }
+
+    [Fact]
+    public void ШагВНижнююСтену_ОстанавливаетИгрока()
+    {
+        var room = new Room(800, 600);
+        var maxY = room.Height - Player.Size;
+        var world = new GameWorld(room, new Player { X = 50, Y = maxY - 1 });
+        world.SetVerticalMove(1);
+
+        world.Step();
+
+        Assert.Equal(maxY, world.Player.Y);
+    }
 }
