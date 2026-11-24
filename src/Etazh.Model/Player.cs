@@ -9,4 +9,8 @@ public sealed class Player
     public double X { get; set; }
 
     public double Y { get; set; }
+
+    public double AimX { get; set; } = 1;
+
+    public double AimY { get; set; }
 }

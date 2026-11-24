@@ -32,6 +32,17 @@ public sealed class GameForm : Form
         e.Graphics.FillRectangle(floor, bounds);
         e.Graphics.DrawRectangle(wall, bounds);
 
+        using var enemyBody = new SolidBrush(Color.FromArgb(166, 74, 68));
+        foreach (var enemy in _world.Enemies)
+        {
+            e.Graphics.FillEllipse(
+                enemyBody,
+                (float)enemy.X,
+                (float)enemy.Y,
+                (float)Enemy.Size,
+                (float)Enemy.Size);
+        }
+
         var player = _world.Player;
         using var body = new SolidBrush(Color.FromArgb(214, 176, 122));
         e.Graphics.FillEllipse(
@@ -40,6 +51,22 @@ public sealed class GameForm : Form
             (float)player.Y,
             (float)Player.Size,
             (float)Player.Size);
+
+        var centerX = (float)(player.X + Player.Size / 2);
+        var centerY = (float)(player.Y + Player.Size / 2);
+        using var aim = new Pen(Color.FromArgb(236, 224, 196), 3);
+        e.Graphics.DrawLine(
+            aim,
+            centerX,
+            centerY,
+            centerX + (float)player.AimX * 22,
+            centerY + (float)player.AimY * 22);
+    }
+
+    protected override void OnMouseMove(MouseEventArgs e)
+    {
+        base.OnMouseMove(e);
+        _world.AimAt(e.X, e.Y);
     }
 
     protected override void OnKeyDown(KeyEventArgs e)

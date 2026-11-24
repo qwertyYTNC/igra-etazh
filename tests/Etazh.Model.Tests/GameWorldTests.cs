@@ -113,4 +113,91 @@ public class GameWorldTests
 
         Assert.Equal(maxY, world.Player.Y);
     }
+
+    [Fact]
+    public void ПрицелВправо_МеняетНаправлениеИНеДвигаетИгрока()
+    {
+        var world = new GameWorld(new Room(800, 600), new Player { X = 100, Y = 120 });
+        world.Pistol = new Pistol { X = 10, Y = 10, Ammo = 6 };
+        var centerX = world.Player.X + Player.Size / 2;
+        var centerY = world.Player.Y + Player.Size / 2;
+
+        world.AimAt(centerX + 80, centerY);
+
+        Assert.Equal(1, world.Player.AimX, 3);
+        Assert.Equal(0, world.Player.AimY, 3);
+        Assert.Equal(100, world.Player.X);
+        Assert.Equal(120, world.Player.Y);
+        Assert.Equal(6, world.Pistol.Ammo);
+        Assert.False(world.Pistol.PickedUp);
+    }
+
+    [Fact]
+    public void ПрицелВверх_СмотритВверх()
+    {
+        var world = new GameWorld(new Room(800, 600), new Player { X = 100, Y = 120 });
+        var centerX = world.Player.X + Player.Size / 2;
+        var centerY = world.Player.Y + Player.Size / 2;
+
+        world.AimAt(centerX, centerY - 50);
+
+        Assert.Equal(0, world.Player.AimX, 3);
+        Assert.Equal(-1, world.Player.AimY, 3);
+        Assert.Equal(100, world.Player.X);
+        Assert.Equal(120, world.Player.Y);
+    }
+
+    [Fact]
+    public void ДальнийПротивник_СтоитНаМесте()
+    {
+        var world = new GameWorld(new Room(800, 600), new Player { X = 50, Y = 50 });
+        world.Enemies.Add(new Enemy { X = 700, Y = 500 });
+
+        world.Step();
+
+        Assert.Equal(700, world.Enemies[0].X);
+        Assert.Equal(500, world.Enemies[0].Y);
+    }
+
+    [Fact]
+    public void БлижнийПротивник_ДелаетШагКИгроку()
+    {
+        var world = new GameWorld(new Room(800, 600), new Player { X = 200, Y = 200 });
+        world.Enemies.Add(new Enemy { X = 200, Y = 280 });
+
+        world.Step();
+
+        Assert.Equal(200, world.Enemies[0].X);
+        Assert.Equal(280 - Enemy.Speed, world.Enemies[0].Y);
+        Assert.Equal(200, world.Player.X);
+        Assert.Equal(200, world.Player.Y);
+    }
+
+    [Fact]
+    public void ПротивникУЛевойСтены_НеВыходитЗаКомнату()
+    {
+        var world = new GameWorld(new Room(800, 600), new Player { X = 0, Y = 100 });
+        world.Enemies.Add(new Enemy { X = 1, Y = 100 });
+
+        world.Step();
+
+        Assert.Equal(0, world.Enemies[0].X);
+        Assert.InRange(world.Enemies[0].X, 0, world.Room.Width - Enemy.Size);
+    }
+
+    [Fact]
+    public void СтартоваяКомната_ПятьПротивниковСтоятВдали()
+    {
+        var world = GameWorld.CreateStarting();
+        Assert.Equal(5, world.Enemies.Count);
+        var before = world.Enemies.Select(enemy => (enemy.X, enemy.Y)).ToArray();
+
+        world.Step();
+
+        for (var i = 0; i < before.Length; i++)
+        {
+            Assert.Equal(before[i].X, world.Enemies[i].X);
+            Assert.Equal(before[i].Y, world.Enemies[i].Y);
+        }
+    }
 }
